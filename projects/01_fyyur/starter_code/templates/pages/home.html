@@ -3,6 +3,8 @@
 {% block content %}
 <div class="row">
 	<div class="col-sm-6">
+		{% with messages = get_flashed_messages() %}
+		{% endwith %}
 		<h1>Fyyur 🔥</h1>
 		<p class="lead">Where musical artists meet musical venues.</p>
 		<h3>
