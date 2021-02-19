@@ -101,14 +101,16 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['total_questions'], 0)
 
     def test_delete_question(self):
-        res = self.client().delete('/questions/11')
+        new_question = Question(question="test", category=1, answer="test", difficulty=1)
+        new_question.insert()
+        res = self.client().delete('/questions/'+str(new_question.id))
         data = json.loads(res.data)
-        question = Question.query.filter(Question.id == 11).one_or_none()
+
+        deleted_question = Question.query.filter(Question.id == new_question.id).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted'], 11)
-        self.assertEqual(question, None)
+        self.assertEqual(data['deleted'], new_question.id)
 
     def test_get_quiz_question_without_category(self):
         res = self.client().post('/quizzes', json={'previous_questions': [1,2,3], 'quiz_category': {"id":0}})
@@ -137,13 +139,13 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Method not allowed')
 
-    def test_400_search_question(self):
+    def test_422_search_question(self):
         res = self.client().post('/questions', json={"search": "WorldCup"})
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Bad Request')
+        self.assertEqual(data['message'], 'Unprocessable')
 
     def test_404_search_questions_in_inexisting_category(self):
         res = self.client().get('/categories/1000/questions')
